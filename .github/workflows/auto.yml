@@ -1,0 +1,60 @@
+# 名称
+name: Auto Deploy Test
+
+# 触发
+on:
+  # 触发事件：master分支有更新
+  push:
+    branches: ["master"]
+  # 支持手动触发
+  workflow_dispatch:
+
+# 设置并发部署方案
+concurrency:
+  # 全局归为一个组，而一个组只能有一个job在部署
+  group: "deploy"
+  # 不取消冲突的部署，而是按序进行
+  cancel-in-progress: false
+
+# 构建流水线jobs
+jobs:
+  # 构建job
+  build:
+    # 运行环境
+    runs-on: ubuntu-latest
+    # 步骤
+    steps:
+        # 复制代码到目录下
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+        # 设置编译环境
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+        # 编译
+      - name: Compile and package
+        run: mvn clean install
+
+        # 使用Docker打包镜像
+      - name: Build and push Docker image
+        run: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} 
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }} --build-arg JAR_FILE=target/${{ secrets.JAR_NAME }}.jar --build-arg PORT=${{ secrets.PORT }} .;
+            docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
+
+        # 连接服务器并更新Docker镜像
+      - name: Run command on server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            docker stop my_container
+            docker rm my_container
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest 
+            docker run -d --name my_container -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
