@@ -57,4 +57,4 @@ jobs:
             sudo docker stop my_container
             sudo docker rm my_container
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest 
-            sudo docker run -d --name my_container -p ${{ secrets.PORT }}:${{ secrets.PORT }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
+            sudo docker run -d --name my_container -p ${{ secrets.PORT }}:${{ secrets.PORT }}/udp ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
