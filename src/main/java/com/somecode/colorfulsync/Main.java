@@ -105,7 +105,7 @@ public class Main {
 
     private static ArrayList<String> c = new ArrayList<String>();
     public static void main(String[] args) throws IOException, InterruptedException {
-        DatagramSocket server = new DatagramSocket(9999);
+        DatagramSocket server = new DatagramSocket(8002);
         byte[] bytes = new byte[1024];
         while (true) {
             DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
