@@ -104,7 +104,7 @@ public class Main {
             node = new Node();
         }
         String returnMessage = JSON.toJSONString(node);
-        System.out.println("返回的信息：" + returnMessage);
+        System.out.println("返回的信息：" + returnMessage + "；返回的地址：" + address.getHostAddress() + ":" + port);
         byte[] bytes = returnMessage.getBytes();
         DatagramPacket sendPacket = new DatagramPacket(bytes, bytes.length, address, port);
         try {
