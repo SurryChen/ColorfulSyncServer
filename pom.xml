@@ -12,6 +12,14 @@
     <maven.compiler.target>11</maven.compiler.target>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>2.0.10</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <finalName>ColorfulSyncServer</finalName>
     <plugins>
