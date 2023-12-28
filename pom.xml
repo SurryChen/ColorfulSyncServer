@@ -20,20 +20,48 @@
     </dependency>
   </dependencies>
 
+<!--  <build>-->
+<!--    <finalName>ColorfulSyncServer</finalName>-->
+<!--    <plugins>-->
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-jar-plugin</artifactId>-->
+<!--        <version>3.2.0</version>-->
+<!--        <configuration>-->
+<!--          <archive>-->
+<!--            <manifest>-->
+<!--              <mainClass>com.somecode.colorfulsync.Main</mainClass>-->
+<!--            </manifest>-->
+<!--          </archive>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
+<!--    </plugins>-->
+<!--  </build>-->
   <build>
     <finalName>ColorfulSyncServer</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.0</version>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.3.0</version>
         <configuration>
-          <archive>
-            <manifest>
+          <createDependencyReducedPom>false</createDependencyReducedPom>
+          <shadedArtifactAttached>false</shadedArtifactAttached>
+          <shadedClassifierName></shadedClassifierName>
+          <transformers>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
               <mainClass>com.somecode.colorfulsync.Main</mainClass>
-            </manifest>
-          </archive>
+            </transformer>
+          </transformers>
         </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
