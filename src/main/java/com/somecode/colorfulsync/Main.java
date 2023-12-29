@@ -42,17 +42,22 @@ public class Main {
             String requestMessage = new String(packet.getData(), 0, packet.getLength());
             // 打印
             System.out.println("收到数据包：" + requestMessage);
-            // 反序列化指令
-            Command command = JSON.parseObject(requestMessage, Command.class);
-            // 获取IP和端口
-            InetAddress address = packet.getAddress();
-            int port = packet.getPort();
-            // 判断
-            if (command.type == 1) {
-                heartbeatProcessor(command, address, port);
-            } else if (command.type == 2) {
-                requestTargetDeviceProcessor(command, address, port);
-            } else {
+            try {
+                // 反序列化指令
+                Command command = JSON.parseObject(requestMessage, Command.class);
+                // 获取IP和端口
+                InetAddress address = packet.getAddress();
+                int port = packet.getPort();
+                // 判断
+                if (command.type == 1) {
+                    heartbeatProcessor(command, address, port);
+                } else if (command.type == 2) {
+                    requestTargetDeviceProcessor(command, address, port);
+                } else {
+                    continue;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
                 continue;
             }
         }
