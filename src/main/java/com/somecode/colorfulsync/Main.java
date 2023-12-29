@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,6 +92,7 @@ public class Main {
 
     /**
      * 请求目标IP处理器
+     * 需要给双方都返回IP才可以
      * @param command
      * @param address
      * @param port
@@ -110,16 +112,46 @@ public class Main {
         // 如果没有对应的信息，创建一个空的进行返回
         if (node == null) {
             node = new Node();
+            String returnMessage = JSON.toJSONString(node);
+//            System.out.println("返回的信息：" + returnMessage + "；返回的地址：" + address.getHostAddress() + ":" + port);
+            byte[] bytes = returnMessage.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(bytes, bytes.length, address, port);
+            try {
+                server.send(sendPacket);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            // 给client的返回 - 找到对应的server节点
+            String returnMessageClient = JSON.toJSONString(node);
+            // 给server的返回 - 包装client节点信息
+            Node nodeClient = new Node();
+            nodeClient.ip = address.getHostAddress();
+            nodeClient.port = port;
+            nodeClient.deviceID = command.sourceDeviceID;
+            String returnMessageServer = JSON.toJSONString(nodeClient);
+
+            // 获取字节数组
+            byte[] returnMessageClientBytes = returnMessageClient.getBytes();
+            byte[] returnMessageServerBytes = returnMessageServer.getBytes();
+
+            System.out.println("给client的返回:" + node.toString());
+            System.out.println("给server的返回:" + nodeClient.toString());
+
+            // 发送给client
+            DatagramPacket returnMessageClientPacket = new DatagramPacket(returnMessageClientBytes, returnMessageClientBytes.length, address, port);
+            // 发送给server
+            DatagramPacket returnMessageServerPacket = new DatagramPacket(returnMessageServerBytes, returnMessageServerBytes.length, new InetSocketAddress(node.ip, node.port));
+
+            // 发送
+            try {
+                server.send(returnMessageClientPacket);
+                server.send(returnMessageServerPacket);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        String returnMessage = JSON.toJSONString(node);
-        System.out.println("返回的信息：" + returnMessage + "；返回的地址：" + address.getHostAddress() + ":" + port);
-        byte[] bytes = returnMessage.getBytes();
-        DatagramPacket sendPacket = new DatagramPacket(bytes, bytes.length, address, port);
-        try {
-            server.send(sendPacket);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
     /**
@@ -176,6 +208,16 @@ public class Main {
 
         public long getLastHeartBeatTimestamp() {
             return lastHeartBeatTimestamp;
+        }
+
+        @Override
+        public String toString() {
+            return "Node{" +
+                    "deviceID='" + deviceID + '\'' +
+                    ", ip='" + ip + '\'' +
+                    ", port=" + port +
+                    ", lastHeartBeatTimestamp=" + lastHeartBeatTimestamp +
+                    '}';
         }
     }
 
