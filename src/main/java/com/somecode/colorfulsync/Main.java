@@ -83,6 +83,9 @@ public class Main {
             // 更新最后一次心跳时间
             Node node = deviceConnect.get(command.sourceDeviceID);
             node.lastHeartBeatTimestamp = new Date().getTime();
+            // 也需要更新IP
+            node.ip = address.getHostAddress();
+            node.port = port;
         }
     }
 
