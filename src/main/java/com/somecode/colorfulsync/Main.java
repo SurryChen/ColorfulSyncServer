@@ -126,12 +126,12 @@ public class Main {
         /**
          * 设备ID
          */
-        String deviceID;
+        String deviceID = "";
 
         /**
          * 节点IP
          */
-        String ip;
+        String ip = "";
 
         /**
          * 节点端口
